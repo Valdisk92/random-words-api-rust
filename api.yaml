@@ -1,0 +1,50 @@
+openapi: 3.1.0
+info:
+  version: "1.0"
+  title: Random words API
+paths:
+  /api/v1/word-lists:
+    get:
+      summary: List of all word lists
+      description: Returns a list of all the word lists available in the API
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WordList"
+    post:
+      summary: Create new word list
+      description: API method for creating new word list. Name and words arrays are required.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWordListRequest"
+components:
+  schemas:
+    CreateWordListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        words:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - words
+    WordList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        words:
+          type: array
+          items:
+            type: string

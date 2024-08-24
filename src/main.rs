@@ -24,6 +24,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
+    println!("Starting web server!");
     let db = Surreal::new::<RocksDb>("./database").await.unwrap();
 
     // Select a specific namespace / database
@@ -52,5 +53,6 @@ async fn main() {
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("Server started on port 3000");
     axum::serve(listener, app).await.unwrap();
 }
