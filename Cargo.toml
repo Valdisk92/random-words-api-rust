@@ -8,3 +8,6 @@ axum = { version = "0.7.5", features = ["macros"] }
 surrealdb = { version = "1.5.4", features = ["kv-rocksdb"] }
 tokio = { version = "1.39.2", features = ["full"] }
 serde = "1.0.208"
+utoipa = { version = "4", features = ["axum_extras"]}
+utoipa-redoc = { version = "4", features = ["axum"] }
+utoipa-swagger-ui = { version = "7", features = ["axum"] }

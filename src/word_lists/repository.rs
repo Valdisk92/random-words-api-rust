@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::{local::Db, remote::ws::Client}, sql::Thing, Surreal};
+use surrealdb::{engine::local::Db, sql::Thing, Surreal};
 
 use super::model::WordList as WordListModel;
 
