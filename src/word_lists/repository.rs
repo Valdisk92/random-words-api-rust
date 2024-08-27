@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::local::Db, sql::Thing, Surreal};
+use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
 
 use super::model::WordList as WordListModel;
 
-pub async fn find_all(db: &Surreal<Db>) -> surrealdb::Result<Vec<WordListModel>> {
+pub async fn find_all(db: &Surreal<Client>) -> surrealdb::Result<Vec<WordListModel>> {
     let list_words: Vec<WordListRecord> = db.select("word_lists").await?;
     let list_words = list_words
         .into_iter()
@@ -17,7 +17,7 @@ pub async fn find_all(db: &Surreal<Db>) -> surrealdb::Result<Vec<WordListModel>>
     Ok(list_words)
 }
 
-pub async fn create(db: &Surreal<Db>, word_list: WordListModel) -> surrealdb::Result<()> {
+pub async fn create(db: &Surreal<Client>, word_list: WordListModel) -> surrealdb::Result<()> {
     let created: Vec<WordListRecord> = db
         .create("word_lists")
         .content(WordList {
@@ -31,7 +31,7 @@ pub async fn create(db: &Surreal<Db>, word_list: WordListModel) -> surrealdb::Re
     Ok(())
 }
 
-pub async fn update(db: &Surreal<Db>, word_list: WordListModel) -> surrealdb::Result<()> {
+pub async fn update(db: &Surreal<Client>, word_list: WordListModel) -> surrealdb::Result<()> {
     let updated: Option<WordListRecord> = db
         .update(("word_lists", word_list.id.unwrap()))
         .content(WordList {
@@ -46,7 +46,7 @@ pub async fn update(db: &Surreal<Db>, word_list: WordListModel) -> surrealdb::Re
 }
 
 pub async fn find_one(
-    db: &Surreal<Db>,
+    db: &Surreal<Client>,
     id: String,
 ) -> surrealdb::Result<Option<WordListModel>> {
     let word_list: Option<WordListRecord> = db.select(("word_lists", id)).await?;
@@ -60,7 +60,7 @@ pub async fn find_one(
     Ok(word_list)
 }
 
-pub async fn delete(db: &Surreal<Db>, id: String) -> surrealdb::Result<()> {
+pub async fn delete(db: &Surreal<Client>, id: String) -> surrealdb::Result<()> {
     let _: Option<WordListRecord> = db.delete(("word_lists", id)).await?;
 
     Ok(())

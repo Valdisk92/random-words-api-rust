@@ -18,7 +18,7 @@ use axum::{
     responses(
         (status = 200, description = "Lis of all word lists", body = Vec<WordList>)
     ),
-    )]
+)]
 pub async fn find_all_handler(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<WordList>>, AppError> {

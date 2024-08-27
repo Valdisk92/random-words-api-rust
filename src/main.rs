@@ -1,27 +1,28 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 use axum::{
     routing::{delete, get, post},
     Router,
 };
 use surrealdb::{
-    engine::local::{Db, RocksDb},
+    engine::remote::ws::{Client, Ws},
+    opt::auth::Root,
     Surreal,
 };
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
+use utoipa_swagger_ui::SwaggerUi;
 use word_lists::api_handlers::{
     add_word_to_word_list_handler, create_word_list_handler, delete_word_list_handler,
     find_all_handler, remove_word_from_word_list_handler,
 };
-use utoipa_swagger_ui::SwaggerUi;
 
 mod errors;
 mod word_lists;
 
 #[derive(Clone)]
 pub struct AppState {
-    db: Arc<Surreal<Db>>,
+    db: Arc<Surreal<Client>>,
 }
 
 #[tokio::main]
@@ -55,9 +56,18 @@ async fn main() {
     struct ApiDoc;
 
     println!("Starting web server!");
-    let db = Surreal::new::<RocksDb>("./database").await.unwrap();
 
-    // Select a specific namespace / database
+    //Settin up DB
+    //
+    //Read DB_URL from env
+    let db_url = env::var("DB_URL").unwrap_or("localhost:8000".to_string());
+    let db = Surreal::new::<Ws>(db_url).await.unwrap();
+    db.signin(Root {
+        username: "root",
+        password: "root",
+    })
+    .await.unwrap();
+
     db.use_ns("test").use_db("test").await.unwrap();
 
     //Create global state with db connection
@@ -65,7 +75,9 @@ async fn main() {
 
     //Create router
     let app = Router::new()
-        .merge(SwaggerUi::new("/api-docs/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        .merge(
+            SwaggerUi::new("/api-docs/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()),
+        )
         .merge(Redoc::with_url("/api-docs/redoc", ApiDoc::openapi()))
         .route("/api/v1/word-lists", get(find_all_handler))
         .route("/api/v1/word-lists", post(create_word_list_handler))
